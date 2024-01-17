@@ -1,0 +1,28 @@
+﻿<PageTitle>Loading...</PageTitle>
+
+@if (contentLoaded)
+{
+    @ChildContent
+}
+else
+{
+    <div style="position:absolute; top:30vh; width:100%; text-align:center">
+        <img src="logo.png" class="img-fluid mb-3" width="200" alt="SIMLAP">
+        <h3 class="text-muted">Aplikasi SIMLAP versi 1.0</h3>
+        <img src="loading.gif" class="img-fluid" width="150" alt="loading">
+    </div>
+}
+
+@code {
+
+    bool contentLoaded;
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(4000);
+        contentLoaded = true;
+    }
+}

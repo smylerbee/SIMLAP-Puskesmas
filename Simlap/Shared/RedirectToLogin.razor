@@ -1,0 +1,8 @@
+﻿@inject NavigationManager _uri
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var returUrl = "~/" + _uri.ToBaseRelativePath(_uri.Uri);
+        _uri.NavigateTo($"Identity/Account/Login?returnUrl={returUrl}");
+    }
+}

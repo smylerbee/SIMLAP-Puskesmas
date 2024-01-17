@@ -1,0 +1,89 @@
+﻿@page "/manajemen-pegawai"
+@using Simlap.Data
+@inject ApplicationDbContext _db
+@inject NavigationManager _uri
+
+<PageTitle>Manajemen Pegawai - SIMLAP</PageTitle>
+
+<h3 class="text-muted">
+    <span class="oi oi-person" aria-hidden="true"></span>
+    Manajemen Pegawai
+</h3>
+<hr class="text-muted" />
+
+<div class="card">
+    <div class="card-body">
+        <button class="btn btn-sm btn-outline-success border-0 float-end" @onclick="() => Add_Click()">
+            <span class="oi oi-plus" aria-hidden="true"></span> Tambah Pegawai
+        </button>
+        <h4 class="card-title text-muted mb-3">Daftar Pegawai</h4>
+
+        @if (isLoading)
+        {
+            <LoadingData />
+        }
+        else
+        {
+            if (employees.Count() > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered">
+                        <thead class="bg-primary text-white">
+                            <tr>
+                                <th>Nama</th>
+                                <th>NIP</th>
+                                <th>Pangkat/Gol</th>
+                                <th>Foto</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        @foreach (var emp in employees)
+                        {
+                            <tbody>
+                                <tr>
+                                    <td>@emp.Nama</td>
+                                    <td>@emp.Nip</td>
+                                    <td>@emp.GolPangkat</td>
+                                    <td>
+                                        <img src="@emp.FotoUrl" class="img-fluid" width="40" alt="@emp.Nip">
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-secondary border-0" @onclick="() => Inspect_Click(emp.Id)">
+                                            <span class="oi oi-eye" aria-hidden="true"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        }
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted"><em>Tidak ada data di temukan</em></p>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private List<Pegawai> employees = new List<Pegawai>();
+    private bool isLoading = true;
+
+    protected override Task OnInitializedAsync()
+    {
+        employees = _db.Pegawais.ToList();
+        isLoading = false;
+        return base.OnInitializedAsync();
+    }
+
+    private void Add_Click()
+    {
+        _uri.NavigateTo("pegawai-baru");
+    }
+
+    private void Inspect_Click(int pegawaiId)
+    {
+        _uri.NavigateTo($"detail-pegawai/{pegawaiId}");
+    }
+}

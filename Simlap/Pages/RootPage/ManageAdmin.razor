@@ -1,0 +1,102 @@
+﻿@page "/manage-admin"
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> _userManager
+@inject NavigationManager _nav
+
+<PageTitle>Admin - SIMLAP:Root</PageTitle>
+<h1 class="text-muted">
+    <span class="oi oi-key" aria-hidden="true"></span>
+    Manajemen Admin
+</h1>
+<hr class="text-muted">
+<div class="card">
+    <div class="card-body">
+        <button class="btn btn-sm btn-outline-success border-0 float-end" @onclick="() => Redirect(createAdminUri)">
+            <span class="oi oi-plus" aria-hidden="true"></span>
+            Admin baru
+        </button>
+        <h4 class="text-success">List Admin</h4>
+        @if (loading)
+        {
+            <p><em>Loading data...</em></p>
+        }
+        @if (admins.Count() > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="bg-success text-white">
+                        <tr>
+                            <th>Username</th>
+                            <th>Phone Number</th>
+                            <th>Email</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in admins)
+                        {
+                            <tr>
+                                <td>@user.UserName</td>
+                                <td>@user.PhoneNumber</td>
+                                <td>@user.Email</td>
+                                <td>
+                                    @if (user.LockoutEnabled)
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger border-0" @onclick="() => Redirect(lockoutAdminUri + user.UserName)">
+                                            <span class="oi oi-lock-locked"></span> Block
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-success border-0" @onclick="() => Redirect(lockoutAdminUri + user.UserName)">
+                                            <span class="oi oi-lock-unlocked"></span> Unblock
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted"><em>Data tidak di temukan.</em></p>
+        }
+    </div>
+</div>
+
+
+@code {
+    List<IdentityUser> admins = new List<IdentityUser>();
+    IdentityUser newAdmin = new IdentityUser();
+    private string muatData = "none";
+    private bool loading = true;
+    private string createAdminUri = "create-admin";
+    private string lockoutAdminUri = "lockout-admin/";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var adminRoleUsers = await _userManager.GetUsersInRoleAsync("admin");
+        if (adminRoleUsers != null && adminRoleUsers.Any())
+        {
+            admins = adminRoleUsers.ToList();
+        }
+        loading = false;
+    }
+
+    private void LoadAdmins()
+    {
+        var adminRoleUsers = _userManager.GetUsersInRoleAsync("admin");
+        if (adminRoleUsers.Result != null && adminRoleUsers.Result.Any())
+        {
+            admins = adminRoleUsers.Result.ToList();
+        }
+        muatData = "none";
+    }
+
+    private void Redirect(string uri)
+    {
+        _nav.NavigateTo(uri);
+    }
+}

@@ -1,0 +1,69 @@
+﻿@page "/spm-log"
+@using Simlap.Data
+@inject ApplicationDbContext _db
+
+<PageTitle>Log SPM - SIMLAP</PageTitle>
+
+<h3 class="text-muted">
+    <span class="oi oi-list-rich" aria-hidden="true"></span> Log SPM
+</h3>
+<hr />
+
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">Log Indikator</h4>
+        <ul>
+            @foreach (var item in spmHeaders)
+            {
+                <li>
+                    <b class="text-success">
+                        <span class="oi oi-person" aria-hidden="true"></span>
+                        @GetName(item.Username)
+                    </b>
+                    membuat header baru <b class="text-success">@item.Name</b>.
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="card-body">
+        <h4 class="card-title">Log Jenis Pelayanan</h4>
+        <ul>
+            @foreach (var item in spms)
+            {
+                <li>
+                    <b class="text-success">
+                        <span class="oi oi-person" aria-hidden="true"></span>
+                        @GetName(item.Username)
+                    </b>
+                    menamabahkan jenis pelayanan
+                    <span class="text-success">@item.Indikator</span>
+                    pada Indikator <b class="text-success">@GetIndikator(item.SpmHeaderId)</b>.
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+
+@code {
+    private List<SpmHeader> spmHeaders;
+    private List<Spm> spms;
+    private List<Pegawai> emps;
+
+    protected override Task OnInitializedAsync()
+    {
+        spmHeaders = _db.SpmHeaders.ToList();
+        spms = _db.Spms.ToList();
+        emps = _db.Pegawais.ToList();
+        return base.OnInitializedAsync();
+    }
+
+    private string GetName(string nip)
+    {
+        return emps.FirstOrDefault(x => x.Nip == nip).Nama;
+    }
+
+    private string GetIndikator(int id)
+    {
+        return spmHeaders.FirstOrDefault(x => x.Id == id).Name;
+    }
+}

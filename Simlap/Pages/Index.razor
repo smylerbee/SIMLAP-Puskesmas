@@ -1,0 +1,61 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> _userManager
+
+<PageTitle>Dashboard - SIMLAP</PageTitle>
+
+<h1 class="text-muted">
+    <span class="oi oi-dashboard" aria-hidden="true"></span>
+    Dashboard
+</h1>
+<hr class="text-muted" />
+
+<div class="card">
+    <div class="card-body">
+        <div class="row border-bottom">
+            <div class="col-md-3 px-2 pb-1">
+                <div class="alert bg-danger text-white">
+                    <strong>SIMLAP V.1.0</strong>
+                    <p class="small">
+                        Sistem Informasi Manajemen Laporan Puskesmas
+                    </p>
+                    <span>Versi 1.0 (Januari 2023)</span>
+                </div>
+            </div>
+            <div class="col-md-3 px-2 pb-1">
+                <div class="alert bg-warning text-white">
+                    <strong>Total Pengguna</strong>
+                    <h1>@users.Count()</h1>
+                </div>
+            </div>
+            <div class="col-md-3 px-2 pb-1">
+                <div class="alert bg-success text-white">
+                    <strong>Total Admin</strong>
+                    <h1>@admins.Count()</h1>
+                </div>
+            </div>
+            <div class="col-md-3 px-2 pb-1">
+                <div class="alert bg-primary text-white">
+                    <strong>Total Operator/Puskesmas</strong>
+                    <h1>@operators.Count()</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<IdentityUser> users = new List<IdentityUser>();
+    private List<IdentityUser> admins = new List<IdentityUser>();
+    private List<IdentityUser> operators = new List<IdentityUser>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var adminRoleUsers = await _userManager.GetUsersInRoleAsync("admin");
+        var operatorRoleUsers = await _userManager.GetUsersInRoleAsync("operator");
+
+        users = _userManager.Users.ToList();
+        if (adminRoleUsers != null && adminRoleUsers.Any()) admins = adminRoleUsers.ToList();
+        if (operatorRoleUsers != null && operatorRoleUsers.Any()) admins = operatorRoleUsers.ToList();
+    }
+}

@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> _userManager
+
+<div class="card bg-info">
+    <div class="card-body">
+        <small class="float-end"><em class="text-muted">Total User @InRole</em></small>
+        @if (isLoading)
+        {
+            <p class="text-muted"><em>loading...</em></p>
+        }
+        else
+        {
+            <h1 class="card-title text-center text-white">@users.Count()</h1>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter] public string InRole { get; set; } = "";
+    private List<IdentityUser> users = new List<IdentityUser>();
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (InRole == "")
+        {
+            users = _userManager.Users.ToList();
+        }
+        else
+        {
+            var roledUsers = await _userManager.GetUsersInRoleAsync(InRole);
+            if (roledUsers != null && roledUsers.Any())
+            {
+                users = roledUsers.ToList();
+            }
+        }
+        isLoading = false;
+    }
+}

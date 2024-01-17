@@ -1,0 +1,141 @@
+﻿<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">
+            SIMLAP
+        </a>
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        <AuthorizeView Roles="operator">
+            <div class="nav-item px-3">
+                <img class="img-fluid mb-2 px-5" src="favicon.png" alt="bakti husada" />
+                <p class="text-primary text-center pb-0 mb-0">
+                    <strong>@context.User.Identity?.Name</strong>
+                </p>
+                <p class="text-muted text-center">
+                    <em>- Operator -</em>
+                </p>
+                <hr class="text-muted" />
+            </div>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="root">
+            <div class="nav-item px-3">
+                <img class="img-fluid mb-2 px-5" src="user-agent.png" alt="hackr513" />
+                <p class="text-primary text-center pb-0 mb-0">
+                    <strong>@context.User.Identity?.Name</strong>
+                </p>
+                <p class="text-muted text-center">
+                    <em>- Root -</em>
+                </p>
+                <hr class="text-muted" />
+            </div>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="admin">
+            <div class="nav-item px-3">
+                <img class="img-fluid mb-2 px-5" src="kemenkes.png" alt="kemenkes" />
+                <p class="text-primary text-center pb-0 mb-0">
+                    <strong>@context.User.Identity?.Name</strong>
+                </p>
+                <p class="text-muted text-center">
+                    <em>- Admin -</em>
+                </p>
+                <hr class="text-muted" />
+            </div>
+        </AuthorizeView>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="oi oi-dashboard" aria-hidden="true"></span> Dashboard
+            </NavLink>
+        </div>
+
+        <AuthorizeView Roles="admin">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="manage-spm">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Atur Data SPM
+                </NavLink>
+            </div>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="operator">
+            <div class="nav-item px-3">
+                <hr class="text-muted" />
+                <span class="text-light">Laporan</span>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="report-spm">
+                    <span class="oi oi-document" aria-hidden="true"></span> SPM
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="report-tenpenyakit">
+                    <span class="oi oi-document" aria-hidden="true"></span> 10 Penyakit
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="report-guest">
+                    <span class="oi oi-document" aria-hidden="true"></span> Kunjungan
+                </NavLink>
+            </div>
+            <div class="nav-item px-3">
+                <hr class="text-muted" />
+            </div>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="root">
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="manajemen-pegawai">
+                    <span class="oi oi-person" aria-hidden="true"></span> Manajemen Pegawai
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="manage-puskesmas">
+                    <span class="oi oi-briefcase" aria-hidden="true"></span> Manajemen Puskesmas
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="manage-operator">
+                    <span class="oi oi-person" aria-hidden="true"></span> Manajemen Operator
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="spm-log">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Log SPM
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="counter">
+                    <span class="oi oi-plus" aria-hidden="true"></span> Counter
+                </NavLink>
+            </div>
+
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="fetchdata">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+                </NavLink>
+            </div>
+        </AuthorizeView>
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

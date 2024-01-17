@@ -1,0 +1,73 @@
+﻿@page "/manage-puskesmas"
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> userMan
+@inject NavigationManager _nav
+
+<PageTitle>Puskesmas - SIMLAP:Root</PageTitle>
+
+<h1>Manajemen Puskesmas</h1>
+<hr class="text-muted" />
+
+<div class="card">
+    <div class="card-body">
+        <button class="btn btn-outline-success border-0 float-end" @onclick="() => CreatePkm()">
+            <span class="oi oi-plus" aria-hidden="true"></span> Tambah Puskesmas
+        </button>
+        <h4 class="text-success">List Puskesmas</h4>
+
+        @if (listPKM.Count() > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="bg-success text-white">
+                        <tr>
+                            <td>Username</td>
+                            <td>Email</td>
+                            <td>Phone Number</td>
+                            <td>Action</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in listPKM)
+                        {
+                            <tr>
+                                <td>@user.UserName</td>
+                                <td>@user.Email</td>
+                                <td>@user.PhoneNumber</td>
+                                <td>
+                                    <button class="btn btn-sm btn-light me-1">
+                                        <span class="oi oi-pencil"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted"><em>data puskesmas belum tersedia</em></p>
+        }
+    </div>
+</div>
+
+
+
+@code {
+    private List<IdentityUser> listPKM = new List<IdentityUser>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var operatorRoleUsers = await userMan.GetUsersInRoleAsync("operator");
+        if (operatorRoleUsers != null && operatorRoleUsers.Any())
+        {
+            listPKM = operatorRoleUsers.ToList();
+        }
+    }
+
+    private void CreatePkm()
+    {
+        _nav.NavigateTo("create-puskesmas");
+    }
+}

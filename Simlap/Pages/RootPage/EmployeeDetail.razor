@@ -1,0 +1,196 @@
+﻿@page "/detail-pegawai"
+@page "/detail-pegawai/{PegawaiId}"
+@using Microsoft.AspNetCore.Identity
+@using Simlap.Data
+@inject ApplicationDbContext _db
+@inject UserManager<IdentityUser> _userManager
+@inject NavigationManager _uri
+
+<PageTitle> - SIMLAP</PageTitle>
+
+<h3 class="text-muted">
+    <span class="oi oi-person" aria-hidden="true"></span>
+    Manajemen Pegawai
+</h3>
+<hr class="text-muted" />
+
+@if (isLoading)
+{
+    <LoadingData />
+}
+else
+{
+    if (emp != null)
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <button class="btn btn-link text-decoration-none" @onclick="() => Kembali()">
+                    &laquo; Daftar Pegawai
+                </button>
+            </div>
+            <div class="col-md-6 px-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Profil</h4>
+                        <hr>
+                        <table class="table table-striped table-borderless">
+                            <tr>
+                                <td>Nama</td>
+                                <td>:</td>
+                                <td>
+                                    <input @bind="emp.Nama" class="form-control" placeholder="Nama*">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>NIP</td>
+                                <td>:</td>
+                                <td>
+                                    <input @bind="emp.Nip" class="form-control disabled" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Pangkat/Gol</td>
+                                <td>:</td>
+                                <td>
+                                    <input @bind="emp.GolPangkat" class="form-control" placeholder="Pangkat/Golongan">
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="d-flex justify-content-end">
+                            <button class="btn btn-success" @onclick="() => SaveChanges()">Simpan Perubahan</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 px-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Akun</h4>
+                        <hr>
+                        @if (isMember)
+                        {
+                            <table class="table table-striped table-borderless">
+                                <tr>
+                                    <td>Username</td>
+                                    <td>:</td>
+                                    <td>
+                                        <input @bind="mem.UserName" class="form-control disabled" readonly />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Email</td>
+                                    <td>:</td>
+                                    <td>
+                                        <input @bind="mem.Email" class="form-control disabled" readonly />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Nomor HP</td>
+                                    <td>:</td>
+                                    <td>
+                                        <input @bind="mem.PhoneNumber" class="form-control disabled" readonly />
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <span class="text-success"></span>
+                            <span class="text-danger"></span>
+                            <div class="d-flex justify-content-end" @onclick="() => Loadingkan()">
+                                @if (resetLoading)
+                                {
+                                    <div>
+                                        <img class="img-fluid me-1" src="loading.gif" width="20" alt="loadingbutton">
+                                    </div>
+                                }
+                                <button class="btn btn-secondary">Reset Password</button>
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted"><em>Peagawai ini belum memiliki akun</em></p>
+                            <button class="btn btn-sm btn-outline-success border-0" @onclick="() => CreateAdmin_Click()">Buat Akun Pegawai</button>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-muted"><em>Data pegawai tidak di temukan</em></p>
+    }
+}
+
+@code {
+    [Parameter] public string PegawaiId { get; set; }
+    private Pegawai? emp;
+    private IdentityUser? mem;
+    private bool isMember = false;
+    private bool isLoading = true;
+    private bool resetLoading = false;
+    private string okSukses = "", gagal = "";
+
+    protected override Task OnInitializedAsync()
+    {
+        var users = _userManager.Users.ToList();
+        emp = _db.Pegawais.FirstOrDefault(x => x.Id == Convert.ToInt32(PegawaiId));
+        if (emp != null)
+        {
+            var current = users.FirstOrDefault(x => x.UserName == emp.Nip);
+            if (current != null)
+            {
+                isMember = true;
+                mem = current;
+            }
+        }
+        isLoading = false;
+        return base.OnInitializedAsync();
+    }
+
+    private void Kembali()
+    {
+        _uri.NavigateTo("manajemen-pegawai");
+    }
+
+    private void CreateAdmin_Click()
+    {
+        _uri.NavigateTo($"create-admin/{emp.Id}");
+    }
+
+    private void SaveChanges()
+    {
+        _db.Entry(emp).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
+        _db.SaveChanges();
+    }
+
+    private void Loadingkan()
+    {
+        resetLoading = true;
+        StateHasChanged();
+        ResetPassUser();
+    }
+
+    private async Task<bool> ResetPassUser()
+    {
+        var remPass = await _userManager.RemovePasswordAsync(mem);
+        if (remPass.Succeeded)
+        {
+            var addPass = await _userManager.AddPasswordAsync(mem, "Dinkes2024");
+            if (addPass.Succeeded)
+            {
+                okSukses = "Kata sandi telah di reset menjadi \"Dinkes2024\"";
+            }
+            else
+            {
+                gagal = "Error: kata sandi gagal di reset.";
+            }
+        }
+        else
+        {
+            gagal = "Error: kata sandi gagal di reset.";
+        }
+        resetLoading = false;
+        StateHasChanged();
+        return true;
+    }
+}

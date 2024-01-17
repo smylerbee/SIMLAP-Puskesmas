@@ -1,0 +1,119 @@
+﻿@page "/create-admin"
+@page "/create-admin/{PegawaiId}"
+@using Microsoft.AspNetCore.Identity
+@using Simlap.Data
+@inject UserManager<IdentityUser> _userManager
+@inject ApplicationDbContext _db
+@inject NavigationManager _nav
+
+<PageTitle>Buat Akun Pegawai - SIMLAP</PageTitle>
+
+<h3 class="text-muted">
+    <span class="oi oi-person" aria-hidden="true"></span>
+    Manajemen Pegawai
+</h3>
+<hr class="text-muted" />
+
+<div class="card">
+    <div class="card-body">
+        <button class="btn btn-group-sm float-end">
+            <button class="btn btn-secondary" @onclick="() => BackToList()">Batal</button>
+            <button class="btn btn-primary" @onclick="() => CreateNewAdmin()">Buat Akun</button>
+        </button>
+        <h4 class="card-title">Buat Admin Baru</h4>
+        @if (alertInfo.Length > 0)
+        {
+            <div class="alert bg-danger">
+                <strong>Error: </strong>
+                <ul>@alertInfo</ul>
+            </div>
+        }
+
+        <div class="col-md-4">
+            <div class="form-floating mb-3">
+                <input class="form-control disabled" readonly autocomplete="off" @bind="username" id="username" placeholder="Username" />
+                <label for="username" class="form-label">Username</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input class="form-control" type="email" id="email" autocomplete="off" @bind="email" placeholder="Email" />
+                <label for="email" class="form-label">Email</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="tel" class="form-control" id="phone" autocomplete="off" @bind="phone" placeholder="Nomor HP" />
+                <label for="phone" class="form-label">Nomor HP</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" id="pass" @bind="pass" placeholder="Kata Sandi" />
+                <label for="pass" class="form-label">Kata Sandi</label>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter] public string PegawaiId { get; set; }
+
+    private string username = "";
+    private string email = "";
+    private string phone = "";
+    private string pass = "Dinkes2024";
+
+    private string alertInfo = "";
+
+    protected override Task OnInitializedAsync()
+    {
+        var em = _db.Pegawais.FirstOrDefault(x => x.Id == Convert.ToInt32(PegawaiId));
+        username = em.Nip;
+        return base.OnInitializedAsync();
+    }
+
+    private void BackToList()
+    {
+        _nav.NavigateTo($"detail-pegawai/{PegawaiId}");
+    }
+
+    private async void CreateNewAdmin()
+    {
+        if (string.IsNullOrWhiteSpace(username) ||
+        string.IsNullOrWhiteSpace(email) ||
+        string.IsNullOrWhiteSpace(phone) ||
+        string.IsNullOrWhiteSpace(pass))
+        {
+            alertInfo = "<li>Harap mengisi semua field!</li>";
+            StateHasChanged();
+        }
+        else
+        {
+            alertInfo = "";
+            StateHasChanged();
+            var user = new IdentityUser() 
+            { 
+                UserName = username, 
+                Email = email, 
+                PhoneNumber = phone, 
+                EmailConfirmed = true, 
+                PhoneNumberConfirmed = true 
+            };
+            var result = await _userManager.CreateAsync(user, pass);
+
+            if (result.Succeeded)
+            {
+                await _userManager.AddToRoleAsync(user, "admin");
+                _nav.NavigateTo($"detail-pegawai/{PegawaiId}");
+            }
+            else
+            {
+                foreach (var e in result.Errors)
+                {
+                    alertInfo = $"{alertInfo}\n<li>{e.Description}</li>";
+                }
+                StateHasChanged();
+            }
+        }
+    }
+}

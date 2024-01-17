@@ -1,0 +1,61 @@
+﻿@page "/pegawai-baru"
+@using Simlap.Data
+@inject ApplicationDbContext _db
+@inject NavigationManager _uri
+
+<PageTitle>Pegawai Baru - SIMLAP</PageTitle>
+
+<h3 class="text-muted">
+    <span class="oi oi-person" aria-hidden="true"></span>
+    Manajemen Pegawai
+</h3>
+<hr class="text-muted" />
+
+<div class="d-flex justify-content-center">
+    <div class="col-md-5">
+        <div class="card border-success">
+            <div class="card-header bg-success">
+                <h4 class="card-title text-white">
+                    Input Data Pegawai
+                </h4>
+            </div>
+            <div class="card-body">
+                
+                <div class="form-floating mb-3">
+                    <input @bind="emp.Nama" id="nama" class="form-control" placeholder="Nama" />
+                    <label for="nama" class="form-label">Nama</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input @bind="emp.Nip" type="tel" id="nip" class="form-control" placeholder="NIP" />
+                    <label for="nip" class="form-label">NIP</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input @bind="emp.GolPangkat" id="gol" class="form-control" placeholder="Pangkat/Gol" />
+                    <label for="gol" class="form-label">Pangkat/Gol</label>
+                </div>
+
+                <button class="btn btn-sm btn-link text-muted me-1" onclick="() => Cancel_Click()">Batal</button>
+                <button class="btn btn-primary" @onclick="() => Save_Click()">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Pegawai emp = new Pegawai();
+
+    private void Save_Click()
+    {
+        _db.Pegawais.Add(emp);
+        var result = _db.SaveChanges();
+
+        Cancel_Click();
+    }
+
+    private void Cancel_Click()
+    {
+        _uri.NavigateTo("manajemen-pegawai");
+    }
+}
